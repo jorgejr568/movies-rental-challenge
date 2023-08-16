@@ -10,6 +10,6 @@ Rails.application.routes.draw do
 
   resources :rentals, only: %i[index create]
 
-  post '/auth', to: 'users#sign_in'
-  get '/auth', to: 'users#me'
+  post '/auth', to: 'auth#sign_in'
+  get '/auth', to: 'auth#me'
 end
