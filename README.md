@@ -13,8 +13,7 @@
 
 ## Refactors
 
-- Segregated API RESTs into separate controllers to improve the clarity of the codebase. Separated movie recommendations
-  from the main movie functionalities. Created a distinct controller for rental operations.
+- Segregated API RESTs into separate controllers to improve the clarity of the codebase. Created a distinct controller for rental operations.
 - Introduced the practice of using services for operations within controllers, even for simple model calls. This
   practice aids in unit testing and maintains a cleaner code structure.
 
