@@ -21,7 +21,9 @@ class MovieRentService
     ActiveRecord::Base.transaction do
       movie.available_copies -= 1
       movie.save!
-      @user.rentals << movie
+      @user.rented << movie
     end
+
+    @user.rentals.last
   end
 end

@@ -14,4 +14,16 @@ class MoviesController < ApplicationController
     favorite_movies = @current_user.favorites
     render json: RecommendationEngine.new(favorite_movies).recommendations
   end
+
+  def mark_as_favorite
+    movie = @movie_service.find_by_id(params[:movie_id])
+    @movie_service.mark_as_favorite(@current_user, movie)
+    head :created, content_type: 'application/json'
+  rescue MovieNotFound => e
+    render json: { error: e.message }, status: :not_found
+  end
+
+  def favorites
+    render json: @current_user.favorites
+  end
 end
