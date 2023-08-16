@@ -1,49 +1,140 @@
 # Movie Rental API - Technical Challenge
 
-## Overview
+## Fixes
 
-Welcome to the Movie Rental API technical challenge! This is a Ruby on Rails project that has been set up with basic models for `User` and `Movie`, and a `MoviesController` with some defined endpoints.
+- Removed the unique index rule for movie rentals to allow multiple rentals of the same movie, especially for those
+  frequently requested. Replaced it with a non-unique index to maintain performance.
+- Eliminated referencing `user_id` in requests due to security concerns, especially when used as a query parameter.
+  Implemented the usage of JWT for enhanced security. JWT is harder to intercept and can be securely placed in headers,
+  encrypted when transmitted via SSL. It also has a 1-hour expiration.
+- Adjusted the Ruby version from 2.2 to 2.3 in the project's configuration to match the dependencies required by the
+  bundled packages.
+- Implemented a transactional approach to the rent procedure to ensure database consistency.
 
-This application simulates part of a movie rental system, where users can rent movies, have favorite movies, and get recommendations based on their favorites.
+## Refactors
 
-Your task is to review the existing code, open Pull Requests to suggest any improvements, enhancements, or bug fixes, and reevaluate the existing business logic to propose your own improvements. While the application is functional as it stands, there is always room for improvement!
+- Segregated API RESTs into separate controllers to improve the clarity of the codebase. Separated movie recommendations
+  from the main movie functionalities. Created a distinct controller for rental operations.
+- Introduced the practice of using services for operations within controllers, even for simple model calls. This
+  practice aids in unit testing and maintains a cleaner code structure.
 
-This project is configured for [Github Codespaces](https://github.com/codespaces), which allows you to work on the project in a fully configured, remote development environment. Feel free to use this feature and create a new Codespace for your repository to make the task execution easier.
+## Features
 
-The project also includes a seed file that pre-populates the database with users and movies, making it easier for you to test your changes.
+- Implemented an authorization layer using a secure cryptographic mechanism to compare passwords. This new service also
+  generates the JWT token for enhanced security.
+- Added the ability for users to mark movies as favorites. Users can now maintain a list of their preferred movies using
+  this feature.
 
-## Existing Endpoints
+## API Docs
 
-### 1. `GET /movies`
+## Base URL and Authentication
 
-This endpoint retrieves all the movies in the database and returns them in JSON format. Each movie object includes its `id`, `title`, `genre`, `rating`, and the number of `available_copies`.
+The base URL for all endpoints is `http://localhost:3000`. Make sure to include the necessary authentication token in
+your requests to access protected endpoints.
 
-### 2. `GET /movies/recommendations?user_id=<user_id>`
+Authentication is required for some endpoints. Use the bearer token provided during authentication in
+the `Authorization` header.
 
-This endpoint generates a list of movie recommendations for a given user. It uses a basic recommendation engine that takes the user's favorite movies as input and generates recommendations based on those favorites. The response is a JSON array of recommended movie objects.
+```markdown
+Headers:
+Authorization: Bearer {{_.token}}
+```
 
-### 3. `GET /movies/user_rented_movies?user_id=<user_id>`
+## Endpoints
 
-This endpoint retrieves all the movies that a user has currently rented. The user is identified by the `user_id` parameter in the URL. The response is a JSON array of movie objects that the user has rented.
+### Rentals
 
-### 4. `GET /movies/<movie_id>/rent?user_id=<user_id>`
+#### Rent a Movie
 
-This endpoint allows a user to rent a movie. The user is identified by the `user_id` parameter and the movie by the `id` parameter in the URL. 
+- Method: POST
+- URL: `/rentals`
+- Description: Rent a movie by providing the `movie_id`.
+- Body:
+  ```json
+  {
+    "movie_id": 1
+  }
+  ```
+- Headers:
+  ```
+  Content-Type: application/json
+  ```
+- Authentication: Bearer Token
+- Returns: No content
 
-If successful, it reduces the number of `available_copies` of the movie by 1 and adds the movie to the user's `rented` movies. The response is a JSON object of the rented movie.
+#### Get Rented Movies
 
-## Your Task
+- Method: GET
+- URL: `/rentals`
+- Description: Retrieve a list of rented movies.
+- Authentication: Bearer Token
+- Returns: List of rented movies
 
-1. **Cloning the repository**: Start by [cloning](https://docs.github.com/en/repositories/creating-and-managing-repositories/duplicating-a-repository) this repository to your local machine, then push it to your own GitHub account. Please, do not fork the repository, otherwise, other candidates will be able to see your solution.
-2. **Suggesting changes**: Review the existing code and create Pull Requests (PR) with your proposed changes and explanations, based on the following aspects:
-   - **Bad functioning**: Identify any issues (bugs, inefficiencies, etc.).
-   - **Refactoring**: If necessary, refactor parts of the code to improve its quality and maintainability. Be sure to explain your reasoning in your PR.
-   - **Rethinking the Business Logic**: Feel free to reevaluate the current business logic and assumptions that were previously made. If you have an alternative solution that makes more sense, or would improve the application, please propose it.
+### Movies
 
-### Important Note
+#### List All Movies
 
-Remember, the main goal of this challenge is not to write a fully-functional application, but rather to demonstrate your coding, problem-solving, and communication skills. We value clean and efficient code, and we appreciate creative and thoughtful solutions to problems.
+- Method: GET
+- URL: `/movies`
+- Description: Get a list of all available movies.
+- Authentication: None
+- Returns: List of movies
 
-The code has dozens of potential improvements, and we don't expect you to work on all of them. Feel free to prioritize the ones you consider most important to address in **about 3 hours of work**.
+#### Get Movie Recommendations
 
-_**Happy Coding!**_
+- Method: GET
+- URL: `/movies/recommendations`
+- Description: Get movie recommendations.
+- Authentication: Bearer Token
+- Returns: List of recommended movies
+
+#### List Favorite Movies
+
+- Method: GET
+- URL: `/movies/favorites`
+- Description: Get a list of user's favorite movies.
+- Authentication: Bearer Token
+- Returns: List of favorite movies
+
+#### Mark Movie as Favorite
+
+- Method: POST
+- URL: `/movies/favorites`
+- Description: Mark a movie as a favorite by providing the `movie_id`.
+- Body:
+  ```json
+  {
+    "movie_id": 2
+  }
+  ```
+- Headers:
+  ```
+  Content-Type: application/json
+  ```
+- Authentication: Bearer Token
+- Returns: No content
+
+### Authentication
+
+#### Authenticate User
+
+- Method: POST
+- URL: `/auth`
+- Description: Authenticate a user by providing the email and password.
+- Body:
+  ```json
+  {
+    "email": "user1@example.org",
+    "password": "password"
+  }
+  ```
+- Authentication: None
+- Returns: User authentication token
+
+#### Get User Information
+
+- Method: GET
+- URL: `/auth`
+- Description: Get authenticated user information.
+- Authentication: Bearer Token
+- Returns: User information
