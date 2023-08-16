@@ -1,5 +1,9 @@
 3.times do |i|
-  User.create!(name: "User#{i+1}")
+  User.create!(
+    name: "User#{i+1}",
+    email: "user#{i+1}@example.org",
+    password: BCrypt::Password.create("password")
+  )
 end
   
 movies = [
